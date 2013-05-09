@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+                height="26">
+
+    <s:layout>
+        <s:BasicLayout/>
+    </s:layout>
+
+    <fx:Script>
+        <![CDATA[
+            import components.model.AgentVO;
+
+        ]]>
+    </fx:Script>
+
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="hovered"/>
+    </s:states>
+
+    <s:Label text="{AgentVO(data).name}" fontSize="10" fontWeight="bold" color="{AgentVO(data).color}"
+             left="3" right="3" top="2" />
+
+    <s:Label text="{AgentVO(data).description}" fontSize="10" color="{AgentVO(data).color}"
+             left="3" right="3" bottom="2" />
+
+</s:ItemRenderer>

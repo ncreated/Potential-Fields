@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          creationComplete="onCreationComplete(event)" >
+
+    <fx:Metadata>
+        [Event(name="agentCreated", type="ui.events.AgentCreatorEvent")]
+        [Event(name="agentUpdated", type="ui.events.AgentCreatorEvent")]
+    </fx:Metadata>
+
+    <fx:Script>
+        <![CDATA[
+        import com.ncreated.ds.potentialfields.PFAgent;
+
+        import components.model.AgentVO;
+
+        import mx.events.FlexEvent;
+
+        import ui.events.AgentCreatorEvent;
+
+        [Bindable]
+        public var responder:DisplayObject;
+
+        [Bindable]
+        public var canCreate:Boolean;
+
+        private var _editingAgent:AgentVO;
+
+        private function onCreationComplete(event:FlexEvent):void {
+            // wartosci domyslne
+            potentialCBX.selected = true;
+            agentPotential.text = "20";
+            agentGradation.text = "5";
+
+            if (responder) {
+                responder.addEventListener(MouseEvent.CLICK, onResponderClicked, false, 0, true);
+            }
+        }
+
+        private function onResponderClicked(event:MouseEvent):void {
+            if (!this.canCreate) return;
+
+            createAgent(Math.floor(responder.mouseX), Math.floor(responder.mouseY));
+        }
+
+        private function createAgent(fx:int, fy:int):void {
+            if (_editingAgent) endAgentEdit();
+
+            var agent:PFAgent = new PFAgent(null, null, potentialCBX.selected);
+            agent.position.setTo(fx, fy);
+            agent.potential = parseInt(agentPotential.text);
+            agent.gradation = parseInt(agentGradation.text);
+            agent.setTrailLength(aTrailLength.value);
+
+            var event:AgentCreatorEvent = new AgentCreatorEvent(AgentCreatorEvent.AGENT_CREATED);
+            event = event.withAgentVO(new AgentVO(agent).withColor(aColor.selectedColor)).withStoreOnList(true);
+
+            dispatchEvent(event);
+        }
+
+        public function editAgent(vo:AgentVO):void {
+            if (_editingAgent) endAgentEdit();
+
+            _editingAgent = vo;
+
+            agentPotential.text = String(vo.agent.potential);
+            agentGradation.text = String(vo.agent.gradation);
+            aTrailLength.value = vo.agent.trailLength;
+            aName.text = vo.name;
+            aColor.selectedColor = vo.color;
+        }
+
+        public function endAgentEdit():void {
+            _editingAgent = null;
+        }
+
+        private function updateEditingAgent():void {
+            if (_editingAgent) {
+                _editingAgent.color = aColor.selectedColor;
+                _editingAgent.name = aName.text;
+                _editingAgent.agent.potential = parseInt(agentPotential.text);
+                _editingAgent.agent.gradation = parseInt(agentGradation.text);
+                _editingAgent.agent.setTrailLength(aTrailLength.value);
+
+                dispatchEvent(new AgentCreatorEvent(AgentCreatorEvent.AGENT_UPDATED).withAgentVO(_editingAgent));
+            }
+        }
+
+        ]]>
+    </fx:Script>
+
+    <s:Label text="AGENT NAME:" fontSize="11" fontWeight="bold"/>
+    <s:TextInput id="aName" width="100%"
+                 change="updateEditingAgent()" />
+    <s:HGroup verticalAlign="middle">
+        <s:Label text="color:" fontSize="11" fontWeight="normal" />
+        <mx:ColorPicker id="aColor"
+                        change="updateEditingAgent()" />
+    </s:HGroup>
+
+    <s:Spacer height="5"/>
+
+    <s:Label text="AGENT SETTINGS:" fontSize="11" fontWeight="bold"/>
+
+    <mx:Form width="100%" fontSize="11" fontWeight="normal">
+        <mx:FormItem label="potential:">
+            <s:TextInput id="agentPotential" width="100%" restrict="{0-9}}"
+                         change="updateEditingAgent()" />
+        </mx:FormItem>
+        <mx:FormItem label="gradation:">
+            <s:TextInput id="agentGradation" width="100%" restrict="{0-9}}"
+                         change="updateEditingAgent()" />
+        </mx:FormItem>
+        <mx:FormItem label="trail length:">
+            <s:NumericStepper id="aTrailLength" width="100%" minimum="0" maximum="100" value="0" stepSize="1"
+                              change="updateEditingAgent()" />
+        </mx:FormItem>
+        <mx:FormItem label="self potential:">
+            <s:CheckBox id="potentialCBX" />
+        </mx:FormItem>
+    </mx:Form>
+
+</s:VGroup>

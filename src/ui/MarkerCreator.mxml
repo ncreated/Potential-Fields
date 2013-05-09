@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          creationComplete="onCreationComplete(event)" >
+
+    <fx:Metadata>
+        [Event(name="markerCreated", type="ui.events.MarkerCreatorEvent")]
+        [Event(name="markerUpdated", type="ui.events.MarkerCreatorEvent")]
+    </fx:Metadata>
+
+    <fx:Script>
+        <![CDATA[
+
+        import components.model.MarkerVO;
+
+        import mx.events.FlexEvent;
+
+        import ui.events.MarkerCreatorEvent;
+
+        [Bindable]
+        public var responder:DisplayObject;
+
+        [Bindable]
+        public var canCreate:Boolean;
+
+        private var _editingMarker:MarkerVO;
+
+        private function onCreationComplete(event:FlexEvent):void {
+            if (responder) {
+                responder.addEventListener(MouseEvent.CLICK, onResponderClicked, false, 0, true);
+            }
+        }
+
+        private function onResponderClicked(event:MouseEvent):void {
+            if (!this.canCreate) return;
+
+            createMarker(Math.floor(responder.mouseX), Math.floor(responder.mouseY));
+        }
+
+        private function createMarker(fx:int, fy:int):void {
+            if (_editingMarker) endMarkerEdit();
+
+            var event:MarkerCreatorEvent = new MarkerCreatorEvent(MarkerCreatorEvent.MARKER_CREATED);
+            event = event.withMarkerVO(
+                    new MarkerVO().withColor(mColor.selectedColor).withPosition(fx, fy)
+            ).withStoreOnList(true);
+
+//            if (mName.text.length > 0) {
+//                event.markerVO.withName(mName.text);
+//            }
+
+            dispatchEvent(event);
+        }
+
+        public function editMarker(vo:MarkerVO):void {
+            if (_editingMarker) endMarkerEdit();
+
+            _editingMarker = vo;
+
+            mName.text = vo.name;
+            mColor.selectedColor = vo.color;
+        }
+
+        public function endMarkerEdit():void {
+            _editingMarker = null;
+        }
+
+        private function updateEditingMarker():void {
+            if (_editingMarker) {
+                _editingMarker.color = mColor.selectedColor;
+                _editingMarker.name = mName.text;
+
+                dispatchEvent(new MarkerCreatorEvent(MarkerCreatorEvent.MARKER_UPDATED).withMarkerVO(_editingMarker));
+            }
+        }
+        ]]>
+    </fx:Script>
+
+    <s:Label text="MARKER NAME:" fontSize="11" fontWeight="bold"/>
+    <s:TextInput id="mName" width="100%"
+                 change="updateEditingMarker()" />
+    <s:HGroup verticalAlign="middle">
+        <s:Label text="color:" fontSize="11" fontWeight="normal" />
+        <mx:ColorPicker id="mColor"
+                        change="updateEditingMarker()" />
+    </s:HGroup>
+
+</s:VGroup>

@@ -1,0 +1,278 @@
+<?xml version="1.0"?>
+<s:VGroup xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+          xmlns:mx="library://ns.adobe.com/flex/mx"
+          creationComplete="onCreationComplete(event)">
+
+    <fx:Metadata>
+        [Event(name="fieldCreated", type="ui.events.FieldCreatorEvent")]
+        [Event(name="fieldChanged", type="ui.events.FieldCreatorEvent")]
+    </fx:Metadata>
+
+    <fx:Script>
+        <![CDATA[
+        import com.ncreated.ds.potentialfields.PFHorizontalPotentialField;
+        import com.ncreated.ds.potentialfields.PFPotentialField;
+        import com.ncreated.ds.potentialfields.PFRadialPotentialField;
+        import com.ncreated.ds.potentialfields.PFRectangularPotentialField;
+        import com.ncreated.ds.potentialfields.PFVerticalPotentialField;
+
+        import components.model.PotentialFieldVO;
+
+        import mx.binding.utils.BindingUtils;
+
+        import mx.events.FlexEvent;
+
+        import spark.events.IndexChangeEvent;
+
+        import ui.events.FieldCreatorEvent;
+
+        private static const P_ATTRACT:String = "Attract";
+        private static const P_REPEL:String = "Repel";
+
+        private static const F_RADIAL:String = "Radial";
+        private static const F_RECTANGULAR:String = "Rectangular";
+        private static const F_HORIZONTAL:String = "Horizontal";
+        private static const F_VERTICAL:String = "Vertical";
+
+        [Bindable]
+        public var responder:DisplayObject;
+
+        [Bindable]
+        public var canCreate:Boolean;
+
+        private var _editingField:PotentialFieldVO;
+
+        private function onCreationComplete(event:FlexEvent):void {
+            radialPotential.text = "100";
+            radialGradation.text = "10";
+            rectangularPotential.text = "100";
+            rectangularGradation.text = "10";
+            horizontalPotential.text = "100";
+            horizontalGradation.text = "10";
+            verticalPotential.text = "100";
+            verticalGradation.text = "10";
+
+            rectangularHalfHeight.text = "5";
+            rectangularHalfWidth.text = "5";
+
+            horizontalHalfWidth.text = "5";
+            verticalHalfHeight.text = "5";
+
+            responder.addEventListener(MouseEvent.CLICK, onResponderClicked, false, 0, true);
+        }
+
+        private function onResponderClicked(event:MouseEvent):void {
+            if (!this.canCreate) return;
+
+            createPotentialField(Math.floor(responder.mouseX), Math.floor(responder.mouseY));
+        }
+
+        private function createPotentialField(fx:int, fy:int):void {
+            var field:PFPotentialField = fieldWithCurrentSettings();
+            field.position.setTo(fx, fy);
+
+            dispatchEvent(new FieldCreatorEvent(FieldCreatorEvent.FIELD_CREATED)
+                    .withFieldVO(new PotentialFieldVO(field))
+                    .withStoreOnList(true)
+            );
+        }
+
+        public function editField(vo:PotentialFieldVO):void {
+            if (_editingField) endFieldEdit();
+
+            _editingField = vo;
+
+            if (vo.field.type == PFPotentialField.PF_TYPE_ATTRACT) {
+                pTypeList.selectedItem = P_ATTRACT;
+            }
+            else if (vo.field.type == PFPotentialField.PF_TYPE_REPEL) {
+                pTypeList.selectedItem = P_REPEL;
+            }
+
+            fName.text = vo.name;
+
+            if (vo.field is PFRadialPotentialField) {
+                var radial:PFRadialPotentialField = vo.field as PFRadialPotentialField;
+                radialPotential.text = String(radial.potential);
+                radialGradation.text = String(radial.gradation);
+                fieldSettingsPanel.selectedChild = radialContent;
+                fTypeList.selectedItem = F_RADIAL;
+            }
+            else if (vo.field is PFRectangularPotentialField) {
+                var rectangular:PFRectangularPotentialField = vo.field as PFRectangularPotentialField;
+                rectangularPotential.text = String(rectangular.potential);
+                rectangularGradation.text = String(rectangular.gradation);
+                fieldSettingsPanel.selectedChild = rectangularContent;
+                fTypeList.selectedItem = F_RECTANGULAR;
+            }
+            else if (vo.field is PFHorizontalPotentialField) {
+                var horizontal:PFHorizontalPotentialField = vo.field as PFHorizontalPotentialField;
+                horizontalPotential.text = String(horizontal.potential);
+                horizontalGradation.text = String(horizontal.gradation);
+                fieldSettingsPanel.selectedChild = horizontalContent;
+                fTypeList.selectedItem = F_HORIZONTAL;
+            }
+            else if (vo.field is PFVerticalPotentialField) {
+                var vertical:PFVerticalPotentialField = vo.field as PFVerticalPotentialField;
+                verticalPotential.text = String(vertical.potential);
+                verticalGradation.text = String(vertical.gradation);
+                fieldSettingsPanel.selectedChild = verticalContent;
+                fTypeList.selectedItem = F_VERTICAL;
+            }
+        }
+
+        public function endFieldEdit():void {
+            _editingField = null;
+        }
+
+        private function updateEditingFieldValues():void {
+            if (_editingField) {
+
+                var field:PFPotentialField = fieldWithCurrentSettings();
+                field.position.setTo(_editingField.field.position.x, _editingField.field.position.y);
+
+                dispatchEvent(new FieldCreatorEvent(FieldCreatorEvent.FIELD_CHANGED)
+                        .withFieldVO(new PotentialFieldVO(field).withName(fName.text))
+                        .withUserData(_editingField)
+                );
+            }
+        }
+
+        /**
+         * Tworzy obiekt pola potencjalow z obecnych ustawien w kreatorze.
+         * @return
+         */
+        private function fieldWithCurrentSettings():PFPotentialField {
+            var fieldType:String = fTypeList.selectedItem;
+            var field:PFPotentialField;
+
+            if (fieldType == F_RADIAL) {
+                var radial:PFRadialPotentialField = new PFRadialPotentialField();
+                radial.potential = parseInt(radialPotential.text);
+                radial.gradation = parseInt(radialGradation.text);
+                field = radial;
+            }
+            else if (fieldType == F_RECTANGULAR) {
+                var rectangular:PFRectangularPotentialField = new PFRectangularPotentialField(parseInt(rectangularHalfWidth.text), parseInt(rectangularHalfHeight.text));
+                rectangular.potential = parseInt(rectangularPotential.text);
+                rectangular.gradation = parseInt(rectangularGradation.text);
+                field = rectangular;
+            }
+            else if (fieldType == F_HORIZONTAL) {
+                var horizontal:PFHorizontalPotentialField = new PFHorizontalPotentialField(parseInt(horizontalHalfWidth.text));
+                horizontal.potential = parseInt(horizontalPotential.text);
+                horizontal.gradation = parseInt(horizontalGradation.text);
+                field = horizontal;
+            }
+            else if (fieldType == F_VERTICAL) {
+                var vertical:PFVerticalPotentialField = new PFVerticalPotentialField(parseInt(verticalHalfHeight.text));
+                vertical.potential = parseInt(verticalPotential.text);
+                vertical.gradation = parseInt(verticalGradation.text);
+                field = vertical;
+            }
+
+            if (pTypeList.selectedItem == P_ATTRACT) {
+                field.type = PFPotentialField.PF_TYPE_ATTRACT;
+            }
+            else if (pTypeList.selectedItem == P_REPEL) {
+                field.type = PFPotentialField.PF_TYPE_REPEL;
+            }
+
+            return field;
+        }
+        ]]>
+    </fx:Script>
+
+    <s:Label text="FIELD NAME:" fontSize="11" fontWeight="bold"/>
+    <s:TextInput id="fName" width="100%" change="updateEditingFieldValues()"/>
+
+    <s:Spacer height="5"/>
+
+    <s:Label text="FIELD TYPE:" fontSize="11" fontWeight="bold"/>
+    <s:DropDownList id="fTypeList" width="100%" labelField="label" selectedIndex="0"
+                    change="updateEditingFieldValues()">
+        <s:dataProvider>
+            <s:ArrayCollection>
+                <fx:String>{F_RADIAL}</fx:String>
+                <fx:String>{F_RECTANGULAR}</fx:String>
+                <fx:String>{F_HORIZONTAL}</fx:String>
+                <fx:String>{F_VERTICAL}</fx:String>
+            </s:ArrayCollection>
+        </s:dataProvider>
+    </s:DropDownList>
+
+    <!-- Panele konfiguracji poszczegolnych typow potencjalow: -->
+    <mx:ViewStack id="fieldSettingsPanel" selectedIndex="{fTypeList.selectedIndex}" resizeToContent="true"
+            creationPolicy="all">
+        <s:NavigatorContent id="radialContent">
+            <!--Radial potential field-->
+            <mx:Form width="100%" fontSize="11" fontWeight="normal">
+                <mx:FormItem label="potential:">
+                    <s:TextInput id="radialPotential" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="gradation:">
+                    <s:TextInput id="radialGradation" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+            </mx:Form>
+        </s:NavigatorContent>
+        <s:NavigatorContent id="rectangularContent">
+            <!--Rectangular potential field-->
+            <mx:Form width="100%" fontSize="11" fontWeight="normal">
+                <mx:FormItem label="potential:">
+                    <s:TextInput id="rectangularPotential" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="gradation:">
+                    <s:TextInput id="rectangularGradation" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="half width:">
+                    <s:TextInput id="rectangularHalfWidth" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="half height:">
+                    <s:TextInput id="rectangularHalfHeight" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+            </mx:Form>
+        </s:NavigatorContent>
+        <s:NavigatorContent id="horizontalContent">
+            <!--Horizontal potential field-->
+            <mx:Form width="100%" fontSize="11" fontWeight="normal">
+                <mx:FormItem label="potential:">
+                    <s:TextInput id="horizontalPotential" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="gradation:">
+                    <s:TextInput id="horizontalGradation" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="half width:">
+                    <s:TextInput id="horizontalHalfWidth" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+            </mx:Form>
+        </s:NavigatorContent>
+        <s:NavigatorContent id="verticalContent">
+            <!--Vertical potential field-->
+            <mx:Form width="100%" fontSize="11" fontWeight="normal">
+                <mx:FormItem label="potential:">
+                    <s:TextInput id="verticalPotential" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="gradation:">
+                    <s:TextInput id="verticalGradation" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+                <mx:FormItem label="half height:">
+                    <s:TextInput id="verticalHalfHeight" width="100%" restrict="{0-9}}" change="updateEditingFieldValues()" />
+                </mx:FormItem>
+            </mx:Form>
+        </s:NavigatorContent>
+    </mx:ViewStack>
+
+    <s:Spacer height="5"/>
+
+    <s:Label text="POTENTIAL TYPE:" fontSize="11" fontWeight="bold"/>
+    <s:DropDownList id="pTypeList" width="100%" labelField="label" selectedIndex="0"
+                    change="updateEditingFieldValues()">
+        <s:dataProvider>
+            <s:ArrayCollection>
+                <fx:String>{P_ATTRACT}</fx:String>
+                <fx:String>{P_REPEL}</fx:String>
+            </s:ArrayCollection>
+        </s:dataProvider>
+    </s:DropDownList>
+
+</s:VGroup>

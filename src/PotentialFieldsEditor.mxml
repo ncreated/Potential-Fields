@@ -1,0 +1,407 @@
+<?xml version="1.0"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+                       xmlns:s="library://ns.adobe.com/flex/spark" xmlns:ui="ui.*"
+                       width="900" height="600" status="Potential Fields Editor, M.G. 2013"
+                       initialize="onInit(event)"
+                       creationComplete="onCreationCompleted(event)"
+                       resize="onResize(event)"
+                       frameRate="60">
+
+    <s:layout>
+        <s:BasicLayout/>
+    </s:layout>
+
+    <fx:Script>
+        <![CDATA[
+        import components.MapComponent;
+        import components.model.AgentVO;
+        import components.model.MarkerVO;
+        import components.model.PotentialFieldVO;
+
+        import mx.events.ResizeEvent;
+
+        import mx.managers.PopUpManager;
+
+        import spark.events.IndexChangeEvent;
+
+        import ui.SettingsPopup;
+
+        import ui.events.AgentCreatorEvent;
+
+        import ui.events.FieldCreatorEvent;
+        import ui.events.MarkerCreatorEvent;
+        import ui.events.SettingsPopupEvent;
+
+        private var _settingsPopup:SettingsPopup;
+        private var _mapComponent:MapComponent;
+        private var _lastTick:int;
+
+        private function onInit(event:Event):void {
+            _mapComponent = new MapComponent();
+        }
+
+        private function onCreationCompleted(event:Event) {
+            _settingsPopup = SettingsPopup(PopUpManager.createPopUp(this, SettingsPopup, true) as spark.components.TitleWindow);
+            _settingsPopup.addEventListener(SettingsPopupEvent.ACCEPTED, onSettingsAccepted, false, 0, true);
+            PopUpManager.centerPopUp(_settingsPopup);
+        }
+
+        private function onResize(event:ResizeEvent):void {
+            if (_settingsPopup) {
+                PopUpManager.centerPopUp(_settingsPopup);
+            }
+        }
+
+        private function onSettingsAccepted(event:SettingsPopupEvent):void {
+            _settingsPopup.removeEventListener(SettingsPopupEvent.ACCEPTED, onSettingsAccepted, false);
+            PopUpManager.removePopUp(_settingsPopup);
+            _settingsPopup = null;
+
+            var mapWidth:int = event.mapWidth;
+            var mapHeight:int = event.mapHeight;
+
+            mapDisplay.source = new Bitmap();
+            agentsPotentialsDisplay.source = new Bitmap();
+            agentsPositionsDisplay.source = new Bitmap();
+            markersDisplay.source = new Bitmap();
+
+            _mapComponent.createMap(
+                    mapWidth,
+                    mapHeight,
+                    mapDisplay.source as Bitmap,
+                    agentsPotentialsDisplay.source as Bitmap,
+                    agentsPositionsDisplay.source as Bitmap,
+                    markersDisplay.source as Bitmap
+            );
+
+            potentialsList.dataProvider = _mapComponent.staticMapFields;
+            agentsList.dataProvider = _mapComponent.agents;
+            markersList.dataProvider = _mapComponent.markers;
+
+            markersCreator.enabled = false;
+            agentCreator.enabled = false;
+            fieldCreator.enabled = false;
+        }
+
+        /*
+         Potential fields
+         */
+
+        private function onFieldCreated(event:FieldCreatorEvent):void {
+            _mapComponent.addPotentialField(event.fieldVO, event.storeOnList);
+
+            potentialsList.selectedItem = event.fieldVO;
+            fieldCreator.editField(event.fieldVO);
+            fieldCreator.enabled = true;
+        }
+
+        private function onFieldChanged(event:FieldCreatorEvent):void {
+            if (event.type == FieldCreatorEvent.FIELD_CHANGED) {
+                var oldField:PotentialFieldVO = event.userData as PotentialFieldVO;
+                var newField:PotentialFieldVO = event.fieldVO;
+
+                var oldFieldIndex:int = potentialsList.dataProvider.getItemIndex(oldField);
+                _mapComponent.removePotentialFieldWithVO(oldField, true);
+
+                _mapComponent.addPotentialField(newField, false);
+                _mapComponent.staticMapFields.addItemAt(newField, oldFieldIndex);
+                potentialsList.selectedIndex = oldFieldIndex;
+                fieldCreator.editField(newField);
+                fieldCreator.enabled = true;
+            }
+        }
+
+        private function onRemoveSelectedField(event:MouseEvent):void {
+            var selected:Vector.<Object> = potentialsList.selectedItems;
+            for (var i:int = 0; i < selected.length; i++) {
+                _mapComponent.removePotentialFieldWithVO(selected[i] as PotentialFieldVO, false);
+            }
+            _mapComponent.drawMap();
+            fieldCreator.enabled = false;
+        }
+
+        private function onRemoveAllFields(event:MouseEvent):void {
+            _mapComponent.removeAllPotentialFields(true);
+            fieldCreator.enabled = false;
+        }
+
+        private function onFieldSelected(event:IndexChangeEvent):void {
+            if (potentialsList.selectedIndices.length == 1) {
+                fieldCreator.editField(potentialsList.selectedItem as PotentialFieldVO);
+                fieldCreator.enabled = true;
+            }
+            else {
+                fieldCreator.enabled = false;
+            }
+        }
+
+        /*
+         Agents
+         */
+
+        private function onAgentCreated(event:AgentCreatorEvent):void {
+            _mapComponent.addAgent(event.agentVO, event.storeOnList, false);
+
+            agentsList.selectedItem = event.agentVO;
+            agentCreator.editAgent(event.agentVO);
+            agentCreator.enabled = true;
+
+            if (agentsPotentialsDisplay.visible) _mapComponent.drawAgentsPotentials();
+            if (agentsPositionsDisplay.visible) _mapComponent.drawAgentsPositions();
+        }
+
+        private function onAgentUpdated(event:AgentCreatorEvent):void {
+            _mapComponent.drawAgentsPositions();
+            _mapComponent.drawAgentsPotentials();
+        }
+
+        private function onRemoveSelectedAgent(event:MouseEvent):void {
+            var selected:Vector.<Object> = agentsList.selectedItems;
+            for (var i:int = 0; i < selected.length; i++) {
+                _mapComponent.removeAgentWithVO(selected[i] as AgentVO, false);
+            }
+            _mapComponent.drawAgentsPotentials();
+            agentCreator.enabled = false;
+        }
+
+        private function onRemoveAllAgents(event:MouseEvent):void {
+            _mapComponent.removeAllAgents(true);
+            agentCreator.enabled = false;
+        }
+
+        private function onAgentSelected(event:IndexChangeEvent):void {
+            if (agentsList.selectedIndices.length == 1) {
+                agentCreator.editAgent(agentsList.selectedItem as AgentVO);
+                agentCreator.enabled = true;
+            }
+            else {
+                agentCreator.enabled = false;
+            }
+        }
+
+        /*
+         Markers
+         */
+
+        private function onMarkerCreated(event:MarkerCreatorEvent):void {
+            _mapComponent.addMarker(event.markerVO, event.storeOnList);
+
+            markersList.selectedItem = event.markerVO;
+            markersCreator.editMarker(event.markerVO);
+            markersCreator.enabled = true;
+        }
+
+        private function onMarkerUpdated(event:MarkerCreatorEvent):void {
+            _mapComponent.drawMarkers();
+        }
+
+        private function onRemoveSelectedMarker(event:MouseEvent):void {
+            var selected:Vector.<Object> = markersList.selectedItems;
+            for (var i:int = 0; i < selected.length; i++) {
+                _mapComponent.removeMarkerWithVO(selected[i] as MarkerVO, false);
+            }
+            _mapComponent.drawMarkers();
+            markersCreator.enabled = false;
+        }
+
+        private function onRemoveAllMarkers(event:MouseEvent):void {
+            _mapComponent.removeAllMarkers(true);
+            markersCreator.enabled = false;
+        }
+
+        private function onMarkerSelected(event:IndexChangeEvent):void {
+            if (markersList.selectedIndices.length == 1) {
+                markersCreator.editMarker(markersList.selectedItem as MarkerVO);
+                markersCreator.enabled = true;
+            }
+            else {
+                markersCreator.enabled = false;
+            }
+        }
+
+        /*
+         Animation
+         */
+
+        private function onPlayToggled():void {
+            if (playButton.selected) {
+                // start animation
+                this.addEventListener(Event.ENTER_FRAME, onAnimationUpdate, false, 0, true);
+                _lastTick = getTimer();
+            }
+            else {
+                // end animation
+                this.removeEventListener(Event.ENTER_FRAME, onAnimationUpdate, false);
+            }
+        }
+
+        private function onAnimationUpdate(event:Event):void {
+            if ((getTimer() - _lastTick) > playbackTimeDelta.value * 1000) {
+                _mapComponent.moveAgents();
+                _lastTick = getTimer();
+
+                if (agentsPotentialsDisplay.visible) _mapComponent.drawAgentsPotentials();
+                if (agentsPositionsDisplay.visible) _mapComponent.drawAgentsPositions();
+            }
+        }
+
+        private function onStep():void {
+            _mapComponent.moveAgents();
+            if (agentsPotentialsDisplay.visible) _mapComponent.drawAgentsPotentials();
+            if (agentsPositionsDisplay.visible) _mapComponent.drawAgentsPositions();
+        }
+
+        ]]>
+    </fx:Script>
+
+    <mx:HDividedBox id="appContainer" width="100%" height="100%" >
+        <s:Group id="mapGroup" width="70%" height="100%">
+            <s:Scroller left="5" right="5" top="5" bottom="105">
+                <s:Group id="mapContainer">
+                    <s:Graphic>
+                        <s:Rect x="{mapDisplay.x - 1}"
+                                y="{mapDisplay.y - 1}"
+                                width="{mapDisplay.width * mapDisplay.scaleX + 2}"
+                                height="{mapDisplay.height * mapDisplay.scaleY + 2}">
+                            <s:fill>
+                                <s:SolidColor color="#FFFFFF" />
+                            </s:fill>
+                            <s:stroke>
+                                <mx:SolidColorStroke color="#000000"/>
+                            </s:stroke>
+                        </s:Rect>
+                    </s:Graphic>
+                    <s:Image id="mapDisplay" scaleX="{mapDisplayScale.value}" scaleY="{mapDisplayScale.value}"
+                             x="{mapContainer.width * 0.5 - mapDisplay.width * mapDisplay.scaleX * 0.5}"
+                             y="{mapContainer.height * 0.5 - mapDisplay.height * mapDisplay.scaleY * 0.5}"
+                             visible="{showStaticPFMapCheckBox.selected}" />
+                    <s:Image id="agentsPotentialsDisplay" scaleX="{mapDisplayScale.value}" scaleY="{mapDisplayScale.value}"
+                             x="{mapContainer.width * 0.5 - mapDisplay.width * mapDisplay.scaleX * 0.5}"
+                             y="{mapContainer.height * 0.5 - mapDisplay.height * mapDisplay.scaleY * 0.5}"
+                             visible="{showAgentsMapCheckBox.selected}" />
+                    <s:Image id="agentsPositionsDisplay" scaleX="{mapDisplayScale.value}" scaleY="{mapDisplayScale.value}"
+                             x="{mapContainer.width * 0.5 - mapDisplay.width * mapDisplay.scaleX * 0.5}"
+                             y="{mapContainer.height * 0.5 - mapDisplay.height * mapDisplay.scaleY * 0.5}"
+                             visible="{showAgentsPositionsCheckBox.selected}" />
+                    <s:Image id="markersDisplay" scaleX="{mapDisplayScale.value}" scaleY="{mapDisplayScale.value}"
+                             x="{mapContainer.width * 0.5 - mapDisplay.width * mapDisplay.scaleX * 0.5}"
+                             y="{mapContainer.height * 0.5 - mapDisplay.height * mapDisplay.scaleY * 0.5}"
+                             visible="{showMarkersCheckBox.selected}" />
+                    <s:Group id="mouseInputResponder"
+                             scaleX="{mapDisplayScale.value}" scaleY="{mapDisplayScale.value}"
+                             x="{mapContainer.width * 0.5 - mapDisplay.width * mapDisplay.scaleX * 0.5}"
+                             y="{mapContainer.height * 0.5 - mapDisplay.height * mapDisplay.scaleY * 0.5}"
+                             width="{mapDisplay.width}"
+                             height="{mapDisplay.height}" />
+                </s:Group>
+            </s:Scroller>
+            <s:Scroller left="5" right="5" bottom="5" height="100">
+                <s:HGroup>
+                    <!-- map controll menu -->
+                    <s:VGroup width="200">
+                        <s:CheckBox id="showStaticPFMapCheckBox" label="show static potentials map"
+                                selected="true" />
+                        <s:CheckBox id="showAgentsMapCheckBox" label="show agents potentials map"
+                                    selected="true" />
+                        <s:CheckBox id="showAgentsPositionsCheckBox" label="show agents positions"
+                                    selected="true" />
+                        <s:CheckBox id="showMarkersCheckBox" label="show markers"
+                                    selected="true" />
+                    </s:VGroup>
+                    <s:Group>
+                        <s:HGroup gap="5" verticalAlign="middle">
+                            <s:Button id="stepButton" enabled="{!playButton.selected}" label="step" click="onStep()" />
+                            <s:ToggleButton id="playButton" label="play" click="onPlayToggled()" />
+                            <s:HGroup>
+                                <s:Label text="dt" fontSize="11" fontWeight="bold"/>
+                                <s:HSlider id="playbackTimeDelta" minimum="0.016" maximum="1.0" value="0.5" stepSize="0.05" />
+                            </s:HGroup>
+                        </s:HGroup>
+                    </s:Group>
+                </s:HGroup>
+            </s:Scroller>
+            <s:HGroup verticalAlign="middle" x="3" y="3">
+                <s:Label text="SCALE:" fontSize="11" fontWeight="bold"/>
+                <s:HSlider id="mapDisplayScale" minimum="1.0" maximum="20.0" value="9.0" liveDragging="true"/>
+            </s:HGroup>
+        </s:Group>
+
+        <mx:TabNavigator id="settingsPanel" width="30%" height="100%" creationPolicy="all">
+            <s:NavigatorContent label="STATIC MAP" id="pfContent">
+                <s:Scroller left="5" right="5" top="5" bottom="5">
+                    <s:VGroup gap="10">
+                        <ui:PotentialFieldCreator id="fieldCreator" width="100%"
+                                                  fieldCreated="onFieldCreated(event)" fieldChanged="onFieldChanged(event)"
+                                                  responder="{mouseInputResponder}"
+                                                  canCreate="{settingsPanel.selectedChild == pfContent}" />
+                        <s:Spacer height="10"/>
+                        <mx:HRule width="100%"/>
+                        <s:Label text="FIELDS LIST:" fontSize="11" fontWeight="bold"/>
+                        <s:List id="potentialsList" itemRenderer="ui.renderers.PFListItemRenderer"
+                                width="100%" height="200" allowMultipleSelection="true"
+                                change="onFieldSelected(event)"/>
+                        <s:HGroup gap="10" width="100%">
+                            <s:Button label="REMOVE SELECTED" fontSize="10" fontWeight="bold"
+                                  width="50%"
+                                  click="onRemoveSelectedField(event)"/>
+                            <s:Button label="REMOVE ALL" fontSize="10" fontWeight="bold"
+                                      width="50%"
+                                      click="onRemoveAllFields(event)"/>
+                        </s:HGroup>
+                    </s:VGroup>
+                </s:Scroller>
+            </s:NavigatorContent>
+
+            <s:NavigatorContent label="AGENTS" id="aContent">
+                <s:Scroller left="5" right="5" top="5" bottom="5">
+                    <s:VGroup gap="10" enabled="{settingsPanel.selectedChild == aContent}">
+                        <ui:AgentCreator id="agentCreator" width="100%"
+                                         agentCreated="onAgentCreated(event)" agentUpdated="onAgentUpdated(event)"
+                                         responder="{mouseInputResponder}"
+                                         canCreate="{settingsPanel.selectedChild == aContent}" />
+                        <s:Spacer height="10"/>
+                        <mx:HRule width="100%"/>
+                        <s:Label text="AGENTS LIST:" fontSize="11" fontWeight="bold"/>
+                        <s:List id="agentsList" itemRenderer="ui.renderers.AgentsListItemRenderer"
+                                width="100%" height="200" allowMultipleSelection="true"
+                                change="onAgentSelected(event)" />
+                        <s:HGroup gap="10" width="100%">
+                            <s:Button label="REMOVE SELECTED" fontSize="10" fontWeight="bold"
+                                      width="50%"
+                                      click="onRemoveSelectedAgent(event)"/>
+                            <s:Button label="REMOVE ALL" fontSize="10" fontWeight="bold"
+                                      width="50%"
+                                      click="onRemoveAllAgents(event)"/>
+                        </s:HGroup>
+                    </s:VGroup>
+                </s:Scroller>
+            </s:NavigatorContent>
+
+            <s:NavigatorContent label="MARKERS" id="mContent">
+                <s:Scroller left="5" right="5" top="5" bottom="5">
+                    <s:VGroup gap="10" enabled="{settingsPanel.selectedChild == mContent}">
+                        <ui:MarkerCreator id="markersCreator" width="100%"
+                                         markerCreated="onMarkerCreated(event)" markerUpdated="onMarkerUpdated(event)"
+                                         responder="{mouseInputResponder}"
+                                         canCreate="{settingsPanel.selectedChild == mContent}" />
+                        <s:Spacer height="10"/>
+                        <mx:HRule width="100%"/>
+                        <s:Label text="MARKERS LIST:" fontSize="11" fontWeight="bold"/>
+                        <s:List id="markersList" itemRenderer="ui.renderers.MarkersListItemRenderer"
+                                width="100%" height="200" allowMultipleSelection="true"
+                                change="onMarkerSelected(event)" />
+                        <s:HGroup gap="10" width="100%">
+                            <s:Button label="REMOVE SELECTED" fontSize="10" fontWeight="bold"
+                                      width="50%"
+                                      click="onRemoveSelectedMarker(event)"/>
+                            <s:Button label="REMOVE ALL" fontSize="10" fontWeight="bold"
+                                      width="50%"
+                                      click="onRemoveAllMarkers(event)"/>
+                        </s:HGroup>
+                    </s:VGroup>
+                </s:Scroller>
+            </s:NavigatorContent>
+        </mx:TabNavigator>
+    </mx:HDividedBox>
+
+</s:WindowedApplication>
