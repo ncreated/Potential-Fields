@@ -140,8 +140,9 @@ package com.ncreated.ds.potentialfields {
         private function getTrailPotential(map_x:int, map_y:int):int {
             var potential:int = 0;
             for (var trail:BasicLinkedListNode = _trails.head; trail; trail = trail.next) {
-                if (PFAgentTrail(trail).worldX == map_x && PFAgentTrail(trail).worldY == map_y) {
-                    potential += PFAgentTrail(trail).potential;
+                var pfaTrail:PFAgentTrail = trail as PFAgentTrail;
+                if (pfaTrail.worldX == map_x && pfaTrail.worldY == map_y) {
+                    potential += pfaTrail.potential;
                 }
             }
             return potential;
@@ -212,13 +213,13 @@ package com.ncreated.ds.potentialfields {
 
             if (_cachedPoint.x == position.x && _cachedPoint.y == position.y) {
                 if (_trails.length > trailLength) {// zapewnia stala dlugosc listy sladow i reuzywa ponownie starego sladu
-                    var recycledTrail:PFAgentTrail = PFAgentTrail(_trails.head);
+                    var recycledTrail:PFAgentTrail = _trails.head as PFAgentTrail;
                     _trails.removeNode(recycledTrail);// usuwa go z poczatku listy
                     recycledTrail.worldX = position.x;
                     recycledTrail.worldY = position.y;
                     _trails.appendNode(recycledTrail);// dodaje go na koniec listy
                 }
-                else {
+                else if (trailLength > 0) {
                     _trails.appendNode(new PFAgentTrail(position.x, position.y, type * potential));
                 }
                 _cachedPoint.setTo(position.x,  position.y);

@@ -46,10 +46,6 @@ package com.ncreated.ds.potentialfields {
 
         public function removePotentialField(field:PFPotentialField):void {
             addPotentail(field, -1);
-
-            if (_potentialsSnapshot) {
-                debugCreatePotentialsSnapshot();
-            }
         }
 
         /**
@@ -78,6 +74,7 @@ package com.ncreated.ds.potentialfields {
 
         public function debugCreatePotentialsSnapshot():void {
             _potentialsSnapshot = new BitmapData(_tilesWidth, _tilesHeight, true);
+            _potentialsSnapshot.fillRect(_potentialsSnapshot.rect, 0xEEEEEE);
 
             _potentialsSnapshot.lock();
 
@@ -97,8 +94,7 @@ package com.ncreated.ds.potentialfields {
                         }
                     }
                     else {
-                        // potencjal neutralny (0)
-                        _potentialsSnapshot.setPixel32(x, y, 0x00000000);
+                        _potentialsSnapshot.setPixel32(x, y, 0xFFEEEEEE);
                     }
                 }
             }
