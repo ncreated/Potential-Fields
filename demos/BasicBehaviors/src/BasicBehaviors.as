@@ -138,23 +138,5 @@ package {
             /* Toggle between PFPotentialField.PF_TYPE_REPEL and PFPotentialField.PF_TYPE_ATTRACT. */
             _mousePotential.type *= -1;
         }
-
-        /**
-         * Draws grid Sprite and adds it to the stage.
-         */
-        private function createGrid():void {
-            var grid:Sprite = new Sprite();
-            grid.graphics.lineStyle(1, 0xDDDDDD);
-            for (var i:int = 0; i <= stage.stageWidth; i += TILE_SIZE) {// vertical lines
-                grid.graphics.moveTo(i, 0);
-                grid.graphics.lineTo(i, stage.stageHeight);
-            }
-            for (i = 0; i <= stage.stageHeight; i += TILE_SIZE) {// horizontal lines
-                grid.graphics.moveTo(0, i);
-                grid.graphics.lineTo(stage.stageWidth, i);
-            }
-            grid.cacheAsBitmap = true;
-            addChild(grid);
-        }
     }
 }

@@ -13,7 +13,7 @@ package com.ncreated.ds.potentialfields {
      */
     public class PFAgent extends PFRadialPotentialField {
 
-        public static const MAX_TRAIL_LENGTH:int = 14;
+        public static const DEFAULT_TRAIL_LENGTH:int = 0;
 
         /**
          * Czy ma odejmowac swoj wlasny potencjal od wypadkowego potencjalu map dynamicznych.
@@ -35,7 +35,7 @@ package com.ncreated.ds.potentialfields {
          * Readonly! Do ustawienia trailLength powinna byc uzywana metoda setTrailLength().
          * Ze wzgledow optymalizacyjnych nie ma tu gettera/settera.
          */
-        public var trailLength:int = MAX_TRAIL_LENGTH;
+        public var trailLength:int = DEFAULT_TRAIL_LENGTH;
 
         public var debugDrawColor:uint;
 
@@ -149,6 +149,7 @@ package com.ncreated.ds.potentialfields {
         }
 
         private function staticPotentialsSum(map_x:int, map_y:int):int {
+            if (!_staticPotentialsMaps) return 0;
             var sum:int = 0;
             var len:int = _staticPotentialsMaps.length;
             for (var i:int = 0; i < len; i++) {
@@ -160,6 +161,7 @@ package com.ncreated.ds.potentialfields {
         }
 
         private function dynamicPotentialsSum(map_x:int, map_y:int):int {
+            if (!_dynamicPotentialsMaps) return 0;
             var sum:int = 0;
             var len:int = _dynamicPotentialsMaps.length;
             for (var i:int = 0; i < len; i++) {
