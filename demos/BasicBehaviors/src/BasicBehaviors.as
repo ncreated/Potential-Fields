@@ -101,6 +101,7 @@ package {
                 agent.type = PFPotentialField.PF_TYPE_REPEL;
                 agent.potential = 60;
                 agent.gradation = 10;
+                agent.position.setTo(40, 40);
                 agent.addStaticPotentialsMap(_obstaclesPotentialsMap);
                 agent.addDynamicPotentialsMap(_agentsPotentialsMap);//
                 agent.addDynamicPotentialsMap(_mousePotentialMap);

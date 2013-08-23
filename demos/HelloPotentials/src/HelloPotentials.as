@@ -3,6 +3,7 @@ package {
     import com.ncreated.ds.potentialfields.PFDynamicPotentialsMap;
     import com.ncreated.ds.potentialfields.PFPotentialField;
     import com.ncreated.ds.potentialfields.PFRadialPotentialField;
+    import com.ncreated.ds.potentialfields.PFRectangularPotentialField;
 
     import flash.display.Bitmap;
     import flash.display.BitmapData;
@@ -43,10 +44,10 @@ package {
 
             /* Create attracting potential field. */
             _field = new PFRadialPotentialField();
+            _field.type = PFPotentialField.PF_TYPE_ATTRACT;
             _field.potential = 250;
             _field.gradation = 5;
             _field.position.setTo(MAP_WIDTH * 0.5, MAP_HEIGHT * 0.5);
-            _field.type = PFPotentialField.PF_TYPE_ATTRACT;
 
             /* Add field to the map. */
             _map.addPotentialField(_field);
@@ -57,6 +58,16 @@ package {
 
             /* Add map to the agent (let him move on it!). */
             _agent.addDynamicPotentialsMap(_map);
+
+            /* Create an obstacle. */
+            var obstacle:PFRectangularPotentialField = new PFRectangularPotentialField(2, 2);
+            obstacle.type = PFPotentialField.PF_TYPE_REPEL;
+            obstacle.position.setTo(40, 45);
+            obstacle.potential = 250;
+            obstacle.gradation = 100;
+
+            /* Add obstacle to the map. */
+            _map.addPotentialField(obstacle);
 
             // Just for debug purposes:
 
