@@ -1,10 +1,10 @@
 package com.ncreated.lists {
 
 	/***
-	 * Implementacja listy dwukierunkowej oferujacej podstawowe funkcjonalnosci.
-	 * 
-	 * @author Maciek 
-	 * Sandcastle_ST 
+	 * Basic doubly linked list.
+	 *
+	 * @author Maciek
+	 *
 	 * Created Sep 7, 2011
 	 * 
 	 */
