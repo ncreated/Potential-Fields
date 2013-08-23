@@ -1,6 +1,6 @@
 
 package components.model {
-    import com.ncreated.ds.potentialfields.PFAgent;
+    import com.ncreated.ai.potentialfields.PFAgent;
 
     /**
      *

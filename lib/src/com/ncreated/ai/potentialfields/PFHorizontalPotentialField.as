@@ -1,4 +1,4 @@
-package com.ncreated.ds.potentialfields {
+package com.ncreated.ai.potentialfields {
 
     /**
      * Pole potencjalu z max potencjalem rozlozonym na poziomej osi symetrii pola.

@@ -1,5 +1,5 @@
 package ui.events {
-    import com.ncreated.ds.potentialfields.PFAgent;
+    import com.ncreated.ai.potentialfields.PFAgent;
 
     import components.model.AgentVO;
 

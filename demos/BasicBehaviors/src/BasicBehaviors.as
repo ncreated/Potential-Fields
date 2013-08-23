@@ -1,11 +1,11 @@
 package {
 
-    import com.ncreated.ds.potentialfields.PFAgent;
-    import com.ncreated.ds.potentialfields.PFDynamicPotentialsMap;
-    import com.ncreated.ds.potentialfields.PFPotentialField;
-    import com.ncreated.ds.potentialfields.PFRadialPotentialField;
-    import com.ncreated.ds.potentialfields.PFRectangularPotentialField;
-    import com.ncreated.ds.potentialfields.PFStaticPotentialsMap;
+    import com.ncreated.ai.potentialfields.PFAgent;
+    import com.ncreated.ai.potentialfields.PFDynamicPotentialsMap;
+    import com.ncreated.ai.potentialfields.PFPotentialField;
+    import com.ncreated.ai.potentialfields.PFRadialPotentialField;
+    import com.ncreated.ai.potentialfields.PFRectangularPotentialField;
+    import com.ncreated.ai.potentialfields.PFStaticPotentialsMap;
 
     import flash.display.Bitmap;
 

@@ -1,4 +1,4 @@
-package com.ncreated.ds.potentialfields {
+package com.ncreated.ai.potentialfields {
     import com.ncreated.lists.BasicLinkedListNode;
 
     import flash.geom.Point;

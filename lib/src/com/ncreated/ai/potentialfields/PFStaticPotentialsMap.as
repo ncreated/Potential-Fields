@@ -1,4 +1,4 @@
-package com.ncreated.ds.potentialfields {
+package com.ncreated.ai.potentialfields {
     import flash.display.BitmapData;
     import flash.geom.Point;
 

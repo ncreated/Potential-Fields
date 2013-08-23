@@ -1,9 +1,9 @@
 package components.model {
-    import com.ncreated.ds.potentialfields.PFHorizontalPotentialField;
-    import com.ncreated.ds.potentialfields.PFPotentialField;
-    import com.ncreated.ds.potentialfields.PFRadialPotentialField;
-    import com.ncreated.ds.potentialfields.PFRectangularPotentialField;
-    import com.ncreated.ds.potentialfields.PFVerticalPotentialField;
+    import com.ncreated.ai.potentialfields.PFHorizontalPotentialField;
+    import com.ncreated.ai.potentialfields.PFPotentialField;
+    import com.ncreated.ai.potentialfields.PFRadialPotentialField;
+    import com.ncreated.ai.potentialfields.PFRectangularPotentialField;
+    import com.ncreated.ai.potentialfields.PFVerticalPotentialField;
 
     /**
      *

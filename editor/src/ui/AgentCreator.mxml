@@ -10,7 +10,7 @@
 
     <fx:Script>
         <![CDATA[
-        import com.ncreated.ds.potentialfields.PFAgent;
+        import com.ncreated.ai.potentialfields.PFAgent;
 
         import components.model.AgentVO;
 
@@ -85,7 +85,6 @@
                 dispatchEvent(new AgentCreatorEvent(AgentCreatorEvent.AGENT_UPDATED).withAgentVO(_editingAgent));
             }
         }
-
         ]]>
     </fx:Script>
 

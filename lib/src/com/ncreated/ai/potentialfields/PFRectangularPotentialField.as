@@ -1,4 +1,4 @@
-package com.ncreated.ds.potentialfields {
+package com.ncreated.ai.potentialfields {
 
     /**
      * Pole potencjalu, ktore posiada maksymalny potencjal w zadanym prostokacie. Poza granicami tego prostokata
