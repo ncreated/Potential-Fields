@@ -7,9 +7,6 @@ package {
     import com.ncreated.lists.BasicLinkedList;
     import com.ncreated.lists.BasicLinkedListNode;
 
-    import flash.display.Bitmap;
-    import flash.display.BitmapData;
-
     import flash.display.Sprite;
     import flash.events.Event;
     import flash.events.MouseEvent;
@@ -33,8 +30,6 @@ package {
         private var _botsList:BasicLinkedList;
         private var _bulletsList:BasicLinkedList;
 
-        private var _debugBitmap:Bitmap;
-
         public function FightingBots() {
             addEventListener(Event.ADDED_TO_STAGE, init, false, 0, true);
         }
@@ -54,14 +49,6 @@ package {
 
             /* Create bullets list. */
             _bulletsList = new BasicLinkedList();
-
-            // Just for debug purposes:
-
-            /* Create debug bitmap. */
-            _debugBitmap = new Bitmap(new BitmapData(mapWidth, mapHeight));
-            _debugBitmap.scaleX = stage.stageWidth / mapWidth;
-            _debugBitmap.scaleY = stage.stageHeight/ mapHeight;
-            addChildAt(_debugBitmap, 0);
         }
 
         private function respawnBots():void {
@@ -213,18 +200,6 @@ package {
 
                 if (!bullet.isAlive) destroyBullet(bullet);
             }
-
-
-            // Just for debug purposes:
-
-            /* Clear debug drawing. */
-//            _debugBitmap.bitmapData.fillRect(_debugBitmap.bitmapData.rect, 0xFFFFFF);
-
-            /* Draw map's potentials. */
-//            if (_botsList.head) {
-//                bot = _botsList.head as Bot;
-//                bot.agent.dynamicPotentialsMaps[1].debugDrawPotentials(_debugBitmap.bitmapData);
-//            }
         }
 
         private function distance(x1:Number, y1:Number, x2:Number, y2:Number):Number {
