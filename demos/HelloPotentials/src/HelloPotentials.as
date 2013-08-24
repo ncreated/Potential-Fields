@@ -39,15 +39,15 @@ package {
             const MAP_WIDTH:int =  Math.ceil(stage.stageWidth / TILE_SIZE);
             const MAP_HEIGHT:int = Math.ceil(stage.stageHeight / TILE_SIZE);
 
-            /* Create potentials map. */
-            _map = new PFDynamicPotentialsMap(MAP_WIDTH, MAP_HEIGHT);
-
             /* Create attracting potential field. */
             _field = new PFRadialPotentialField();
             _field.type = PFPotentialField.PF_TYPE_ATTRACT;
             _field.potential = 250;
             _field.gradation = 5;
             _field.position.setTo(MAP_WIDTH * 0.5, MAP_HEIGHT * 0.5);
+
+            /* Create potentials map. */
+            _map = new PFDynamicPotentialsMap(MAP_WIDTH, MAP_HEIGHT);
 
             /* Add field to the map. */
             _map.addPotentialField(_field);
