@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
                        xmlns:s="library://ns.adobe.com/flex/spark" xmlns:ui="ui.*"
-                       width="900" height="600"
                        initialize="onInit(event)"
                        creationComplete="onCreationCompleted(event)"
                        resize="onResize(event)"
@@ -254,7 +253,7 @@
         ]]>
     </fx:Script>
 
-    <mx:HDividedBox id="appContainer" width="100%" height="100%" >
+    <mx:HDividedBox id="appContainer" top="0" bottom="0" left="0" right="0" >
         <s:Group id="mapGroup" width="70%" height="100%">
             <s:Scroller left="5" right="5" top="5" bottom="105">
                 <s:Group id="mapContainer">
