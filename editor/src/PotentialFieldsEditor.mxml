@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:mx="library://ns.adobe.com/flex/mx"
                        xmlns:s="library://ns.adobe.com/flex/spark" xmlns:ui="ui.*"
-                       width="900" height="600" status="Potential Fields Editor, M.G. 2013"
+                       width="900" height="600"
                        initialize="onInit(event)"
                        creationComplete="onCreationCompleted(event)"
                        resize="onResize(event)"
@@ -404,4 +404,4 @@
         </mx:TabNavigator>
     </mx:HDividedBox>
 
-</s:WindowedApplication>
+</s:Application>
