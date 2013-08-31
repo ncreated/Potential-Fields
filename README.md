@@ -12,4 +12,7 @@ I've written 3-part article about this library. Please refer it for API informat
 Content of this repository:
 * **libs**: AS3 library sources;
 * **editor**: Potential Fields Editor app sources;
-* **demos**
+* **demos**: source codes for library demos:
+  * [HelloPotentials demo](http://www.n-created.com/wp-content/uploads/2013/08/HelloPotentials_release1.swf)
+  *	[BasicBehaviors demo](http://www.n-created.com/wp-content/uploads/2013/08/BasicBehaviors_release.swf)
+  * [FightingBots demo](http://www.n-created.com/wp-content/uploads/2013/08/FightingBots_release2.swf)
