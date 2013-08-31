@@ -7,7 +7,7 @@ I've written 3-part article about this library. Please refer it for API informat
 * [Potential Fields AI, 2/3: RTS bot implementation.](http://www.n-created.com/2013/08/25/potential-fields-ai-23-rts-bot-implementation/)
 * [Potential Fields AI, 3/3: real game example.](http://www.n-created.com/2013/08/29/potential-fields-ai-33-real-game-example/)
 
-[Potential Fields Editor](n-created.com/dev/pfeditor) is an online tool for creating potential maps and playing with moveable agents.
+[Potential Fields Editor](http://n-created.com/dev/pfeditor) is an online tool for creating potential maps and playing with moveable agents.
 
 Content of this repository:
 * **libs**: AS3 library sources;
