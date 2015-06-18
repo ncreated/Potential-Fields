@@ -1,4 +1,4 @@
-<h1>Potential Fields AS3 library<h1>
+<h1>Potential Fields AS3 library</h1>
 
 This library can be used for easy development of AI behaviors driven by potential fields. For more informations about potential fields theory I recommend you reading [Johan Hagelbäck's: Using Potential Fields in a Real-time Strategy Game Scenario](http://aigamedev.com/open/tutorials/potential-fields/).
 
